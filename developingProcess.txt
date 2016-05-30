@@ -1,0 +1,137 @@
+chatting 스레드 서버 다중 연결 
+
+TODO:
+
+1) socket exception handle
+ 채팅자 퇴장시  - socket 닫기
+		- hm에서 그 outputstream 지우기 
+		- 퇴장합니다 메세지 뿌리기		
+		- break;	
+		- while 문 밖에 name+"님이 퇴장하셨습니다."
+		ok
+
+
+2) 접속 시작 메세지도 Client에 넘겨주기
+	새로운 접속자 쓰레드 생성시 
+		-while 문 들어가기 전에 broadCasting 으로 ~"님 입장했습니다."
+
+3) 메세지 시간 뿌리기
+  현재 시간 출력 및 실행 시간 출력
+public class trunc_tweet_tag {
+	public static void main(String [] args){
+		long time = System.currentTimeMillis(); 
+		SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+		String str = dayTime.format(new Date(time));
+		System.out.println(str);
+		
+		long start = System.currentTimeMillis() ; 
+		new trunc_tweet_tag("./message/");
+		long end = System.currentTimeMillis(); 
+		
+		System.out.println((end-start)/1000 +" 초 걸림");
+	}
+
+
+GUI
+
+1) Client 키면 로그인 하라고 이름 입력!  enter 누르거나 클릭하면  
+	- 창 사라지고 boolean start = false;
+	- 입력된 이름 옮겨 주고
+	- 채팅창 visible true로 바꿔주기
+	** 메인에서 대기하게 만들기 
+	
+
+1>사용자 이름으로 세팅해주기 
+2) 2 > 접속 후 < 환영합니다. ~~ 채팅방에 접속하셨습니다.>
+3) 3 > 입력하고 enter 누르거나 클릭하면 보내고 받은건 2 > 에 띄우기 ok
+
+2) 서버 연결하기 
+	- 채팅 창 뜬 다음에 커서가 입력창에 오게 하고 
+	
+3) 메세지 보내기 
+	- textField 에서 메세지 가져와서 엔터 누르거나 send 누르면 전송
+while(socket.isConnected()){
+			//쓰는 거 
+			sendData = frame.textField.getText();
+			
+			try {
+				dos.writeUTF(sendData);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+어디다가 넣어야 하나? actionListener에 넣어야 함
+보내고 나면 textField 초기화 해주기
+
+4) 접속자 명단 띄워주기 새로운 쓰레드 만들기?
+
+서버에서 client 접속하자마자 name list 업데이트해서 objectoutputStream 생성해서
+새로운 스레드에 넘겨주기 받아서 모든 클라이언트들에게 보내기  
+synchronized로 arrayList한번 보호해주기
+2초에 한 번씩 업데이트 된 거 보내기 sleep();
+
+ clent들에 보내기 
+안됨. 한 소켓에서 input output 스트림은 하나씩 밖에 못 만듦
+
+4-1) String split 이용하기
+ 	- 받아와서 검사하기 /# 으로 앞에 시작 해서 space로 뛴 걸로 구분하기
+	- 받아온 text에서 앞 두자만 검사해서 /#로 시작하면 arrayList에 구별해서 #/ 까지 빼서 넣기
+	
+	- 서버에서는 클라이언트 진입할 때마다 hashMap에 있는 Key 들만 꺼내서 
+		/# 이름 이름 이름 #/ 처럼 보내주기 
+클라이언트는 처음 받은 msg는 접속자 명단으로 띄우기
+
+5)이모티콘
+	- 이미지 만들기 ok
+	- 이모티콘 아이콘 클릭시 선택된 이모티콘 명령어 보내기
+	- 누르면 보내기 
+	- 이미지 파일 경로 상대경로로 지정하기
+	- 이미지 이름 앞에 보낸 사람 이름 나오게 하기..
+		서버에서 보낼 때 이름을 뒤에다가 같이 보내게 
+		클라이언트에서 받아서 이름 먼저 출력하고 그다음 이모티콘 
+
+<Client 쪽>	
+-  BufferedImage import 한다.
+	dout.writeUTF(obj.getImg_name()); (dataOutputStream 으로 보내준다)
+	-BufferedImage img = ImageIO.read(ImageIO.createImageInputStream(socket.getInputStream()));
+<Server 쪽>
+- txt로 이미지 읽어 온다
+- path + 이미지name 이용해서 식별해주고 소켓을 통해 넘겨준다
+ bimg = ImageIO.read(new File(obj.getRuta_arch_img()+nombre));  
+- ImageIO.write(bimg,"JPG", dout); 이건뭐지? 이미지 저장 
+     File file = new File("하은1.png");
+     ImageIcon icon = new ImageIcon("하은1.png");
+     dlm.addElement(icon);
+5-1) 스크롤바
+	>setViewportView 말고 다른 게 되어있었음
+	>포인터를 맨 밑으로 계속 재 설정 하는 방법
+	JScrollBar scroll=frame.getScrollPane().getVerticalScrollBar();
+	scroll.setValue(scroll.getMaximum());
+
+6)메뉴 
+7)파일 전송
+8)사진 전송
+9)귓속말
+/\ username 으로 보내면 그 유저한테만 나오게 
+	- /w 으로 들어오고 그 뒤가 자기 이름이면 읽어서 보여주기 
+	- 보낸 사람도 봐야되니까 보낸 사람은 그렇게 해서 보내면 자기
+	창에 띄워주기
+	-보낸 사람 창이랑 내 창에 띄워 줘야 함
+
+10) help 
+	사용법 텍스트 창 띄우기 
+	JOptionPane.showMessageDialog(null, "귓속말 사용법\n /w 수신자이름 contents");
+
+
+
+ 
+<서버GUI>
+1) while 문이 들어가면 안되네
+ >> 자동 생성된 Runnable 밖으로 꺼내주면 됨
+
+2) 강퇴기능 
+	-list에서 선택하면 강퇴 버튼으로 element 보내기 
+	- 강퇴 누르면 그 소켓 연결 close  시키기 
+	- client 쪽 쓰레드 종료 시키기 ??
+
